@@ -58,9 +58,17 @@ while play:
                     velocidadMovYMoto = 0
 
     backgroundPosition += 2  # Velocidad de desplazamiento
-    # Actualización de la posición de la moto
+    
+    # Actualización de la posición de la moto con reglas para no salirse de la carretera
     xMoto += velocidadMovXMoto 
+    if xMoto <= 179 or xMoto >= 245:
+        xMoto -= velocidadMovXMoto
+        velocidadMovXMoto = 0
+
     yMoto += velocidadMovYMoto 
+    if yMoto >= 480 or yMoto <= 2:
+        yMoto -= velocidadMovYMoto
+        velocidadMovYMoto = 0
 
     # Dibujar fondo
     screen.blit(background, (0, backgroundPosition))
