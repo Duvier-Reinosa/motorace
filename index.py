@@ -41,30 +41,31 @@ velocidadMovXMoto = 0
 velocidadMovYMoto = 0
 initialTime = pygame.time.get_ticks()
 velocityGame = 2
-
+powers = []
+play = True
 # Lista de posiciones de los Elementos(carros, llantas y pistones)
 elementsPositions = []
 
-# Función para agregar un nuevo carro a la lista
+# Función para agregar un nuevo elemento a la lista
 def addElements():
     lane = random.randint(0, 1)  # Selección aleatoria de un carril
     xPos = 170 + lane * 60  # Posición X según el carril seleccionado
-    yPos = -100 * (len(elementsPositions) * 3)   # Empieza arriba de la pantalla la operación funciona para poner más separados los carros en la pantalla
+    yPos = -100 * (len(elementsPositions) * 3)   # Empieza arriba de la pantalla la operación funciona para poner más separados los elementos en la pantalla
     selectedElement = selectElements(random.randint(0, 6)) # Selección aleatoria de un elemento
 
     # Para centrar el piston el carril 
     if selectedElement == pistonScaled:
         xPos += 15
 
-    elementsPositions.append((xPos, yPos, selectedElement))  # Agregar el carro a la lista
+    elementsPositions.append((xPos, yPos, selectedElement))  # Agregar el elemento a la lista
 
 # Función para mover los carros y comprobar colisiones
 def updateElements():
     for i, (x, y, element) in enumerate(elementsPositions):
-        y += velocityGame  # Velocidad de movimiento del carro
-        elementsPositions[i] = (x, y, element)  # Actualizar posición del carro
+        y += velocityGame  # Velocidad de movimiento del elemento
+        elementsPositions[i] = (x, y, element)  # Actualizar posición del elemento
 
-        # Eliminar carros que hayan salido de la pantalla
+        # Eliminar elementos que hayan salido de la pantalla
         if y > 600:
             elementsPositions.pop(i)
 
@@ -85,7 +86,6 @@ def selectElements(position):
         return tyreScaled
 
 # Bucle principal del juego
-play = True
 while play:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -115,7 +115,7 @@ while play:
 
     # Actualización de la posición de la moto con reglas para no salirse de la carretera
     xMoto += velocidadMovXMoto
-    if xMoto <= 179 or xMoto >= 245:
+    if xMoto <= 179 or xMoto >= 255:
         xMoto -= velocidadMovXMoto
         velocidadMovXMoto = 0
 
@@ -128,12 +128,17 @@ while play:
     screen.blit(background, (0, backgroundPosition))
     screen.blit(background, (0, backgroundPosition - sizeScreen[1]))
 
-    # Dibujar elementos
-    for (x, y, element) in elementsPositions:
-        screen.blit(element, (x, y))
 
     # mostrar moto
-    screen.blit(motoScaled, (xMoto, yMoto))
+    motoDrawed = screen.blit(motoScaled, (xMoto, yMoto))
+
+    # Dibujar elementos
+    for (x, y, element) in elementsPositions:
+        elementDrawed = screen.blit(element, (x, y))
+        # verificar colisiones
+        if motoDrawed.colliderect(elementDrawed):
+            if element == carBlue or element == carGreen or element == carRed or element == carRose or element == carYellow:
+                play = False
 
     # Calcular el tiempo transcurrido
     currentTime = pygame.time.get_ticks() - initialTime
