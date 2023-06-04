@@ -40,6 +40,8 @@ yMoto = 480
 velocidadMovXMoto = 0
 velocidadMovYMoto = 0
 initialTime = pygame.time.get_ticks()
+currentSeconds = 0
+secondsToSubtract = 0
 velocityGame = 2
 powers = []
 play = True
@@ -59,7 +61,7 @@ def addElements():
 
     elementsPositions.append((xPos, yPos, selectedElement))  # Agregar el elemento a la lista
 
-# Función para mover los carros y comprobar colisiones
+# Función para mover los carros
 def updateElements():
     for i, (x, y, element) in enumerate(elementsPositions):
         y += velocityGame  # Velocidad de movimiento del elemento
@@ -87,6 +89,12 @@ def selectElements(position):
 
 # Bucle principal del juego
 while play:
+    # Calcular el tiempo transcurrido
+    currentSeconds = pygame.time.get_ticks() - initialTime
+
+    # Formatear el tiempo en segundos
+    currentSeconds = currentSeconds // 1000
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             play = False
@@ -128,35 +136,40 @@ while play:
     screen.blit(background, (0, backgroundPosition))
     screen.blit(background, (0, backgroundPosition - sizeScreen[1]))
 
-
-    # mostrar moto
-    motoDrawed = screen.blit(motoScaled, (xMoto, yMoto))
-
-    # Dibujar elementos
+    # Dibujar elementos y controla colisiones
     for (x, y, element) in elementsPositions:
         elementDrawed = screen.blit(element, (x, y))
         # verificar colisiones
         if motoDrawed.colliderect(elementDrawed):
             if element == carBlue or element == carGreen or element == carRed or element == carRose or element == carYellow:
                 play = False
-
-    # Calcular el tiempo transcurrido
-    currentTime = pygame.time.get_ticks() - initialTime
-
-    # Formatear el tiempo en segundos
-    currentSeconds = currentTime // 1000
+            elif element == pistonScaled:
+                powers.append(element)
+                elementsPositions.remove((x, y, element))
+            elif element == tyreScaled:
+                secondsToSubtract += 5
+                elementsPositions.remove((x, y, element))
 
     # Crear el texto
     textTime = font.render("Time: " + str(currentSeconds) + " sec", True, (0, 0, 0))
+    textTime2 = font.render("To subtract: " + str(secondsToSubtract) + " sec", True, (0, 0, 0))
+    textTime3 = font.render("Power:" + str(len(powers)), True, (0, 0, 0))
 
     # Mostrar el texto en la pantalla
     screen.blit(textTime, (10, 10))
+    screen.blit(textTime2, (10, 40))
+    screen.blit(textTime3, (10, 70))
+
+
+    # mostrar moto
+    motoDrawed = screen.blit(motoScaled, (xMoto, yMoto))
+
 
     # Generar nuevos carros aleatoriamente
     if random.random() < 0.01:  # Probabilidad de generar un nuevo carro en cada iteración
         addElements()
 
-    # Actualizar posición de los carros y comprobar colisiones
+    # Actualizar posición de los elementos
     updateElements()
 
     if backgroundPosition >= sizeScreen[1]:
