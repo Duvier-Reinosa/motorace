@@ -10,18 +10,25 @@ pygame.display.set_caption("Moto Race")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)  # Fuente para el texto
 
+
+# assets
+
+# imgs
 background = pygame.image.load("assets/calle.png")
+
+moto = pygame.image.load("assets/moto.png")
+motoScaled = pygame.transform.scale(moto, (40, 90))
+
 carBlue = pygame.image.load("assets/carBlue.png")
 carGreen = pygame.image.load("assets/carGreen.png")
 carRed = pygame.image.load("assets/carRed.png")
 carRose = pygame.image.load("assets/carRose.png")
 carYellow = pygame.image.load("assets/carYellow.png")
 
-# assets
-
-# imgs
-moto = pygame.image.load("assets/moto.png")
-motoScaled = pygame.transform.scale(moto, (40, 90))
+piston = pygame.image.load("assets/piston.png")
+pistonScaled = pygame.transform.scale(piston, (40, 90))
+tyre = pygame.image.load("assets/tyre.png")
+tyreScaled = pygame.transform.scale(tyre, (60, 60))
 
 # sounds
 
@@ -35,27 +42,33 @@ velocidadMovYMoto = 0
 initialTime = pygame.time.get_ticks()
 velocityGame = 2
 
-# Lista de posiciones de los carros
-carPositions = []
+# Lista de posiciones de los Elementos(carros, llantas y pistones)
+elementsPositions = []
 
 # Función para agregar un nuevo carro a la lista
-def addCar():
+def addElements():
     lane = random.randint(0, 1)  # Selección aleatoria de un carril
     xPos = 170 + lane * 60  # Posición X según el carril seleccionado
-    yPos = -100 * (len(carPositions) * 3)   # Empieza arriba de la pantalla la operación funciona para poner más separados los carros en la pantalla
-    carPositions.append((xPos, yPos, selectCar(random.randint(0, 4))))  # Agregar el carro a la lista
+    yPos = -100 * (len(elementsPositions) * 3)   # Empieza arriba de la pantalla la operación funciona para poner más separados los carros en la pantalla
+    selectedElement = selectElements(random.randint(0, 6)) # Selección aleatoria de un elemento
+
+    # Para centrar el piston el carril 
+    if selectedElement == pistonScaled:
+        xPos += 15
+
+    elementsPositions.append((xPos, yPos, selectedElement))  # Agregar el carro a la lista
 
 # Función para mover los carros y comprobar colisiones
-def updateCars():
-    for i, (x, y, car) in enumerate(carPositions):
+def updateElements():
+    for i, (x, y, element) in enumerate(elementsPositions):
         y += velocityGame  # Velocidad de movimiento del carro
-        carPositions[i] = (x, y, car)  # Actualizar posición del carro
+        elementsPositions[i] = (x, y, element)  # Actualizar posición del carro
 
         # Eliminar carros que hayan salido de la pantalla
         if y > 600:
-            carPositions.pop(i)
+            elementsPositions.pop(i)
 
-def selectCar(position):
+def selectElements(position):
     if position == 0:
         return carBlue
     elif position == 1:
@@ -66,8 +79,10 @@ def selectCar(position):
         return carRose
     elif position == 4:
         return carYellow
-    else:
-        return carBlue
+    if position == 5:
+        return pistonScaled
+    elif position == 6:
+        return tyreScaled
 
 # Bucle principal del juego
 play = True
@@ -113,9 +128,9 @@ while play:
     screen.blit(background, (0, backgroundPosition))
     screen.blit(background, (0, backgroundPosition - sizeScreen[1]))
 
-    # Dibujar carros
-    for (x, y, car) in carPositions:
-        screen.blit(car, (x, y))
+    # Dibujar elementos
+    for (x, y, element) in elementsPositions:
+        screen.blit(element, (x, y))
 
     # mostrar moto
     screen.blit(motoScaled, (xMoto, yMoto))
@@ -134,10 +149,10 @@ while play:
 
     # Generar nuevos carros aleatoriamente
     if random.random() < 0.01:  # Probabilidad de generar un nuevo carro en cada iteración
-        addCar()
+        addElements()
 
     # Actualizar posición de los carros y comprobar colisiones
-    updateCars()
+    updateElements()
 
     if backgroundPosition >= sizeScreen[1]:
         backgroundPosition = 0
