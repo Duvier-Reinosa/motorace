@@ -19,7 +19,7 @@ font2 = pygame.font.Font(None, 16)  # Fuente para el texto
 background = pygame.image.load("assets/calle.png")
 
 moto = pygame.image.load("assets/moto.png")
-motoScaled = pygame.transform.scale(moto, (25, 75))
+motoScaled = pygame.transform.scale(moto, (20, 65))
 
 carBlue = pygame.image.load("assets/carBlue.png")
 carGreen = pygame.image.load("assets/carGreen.png")
@@ -50,7 +50,7 @@ initialTime = pygame.time.get_ticks()
 currentSeconds = 0
 secondsToSubtract = 0
 velocityGame = 2
-powers = []
+powers = [pistonScaled]
 play = True
 # Lista de posiciones de los Elementos(carros, llantas y pistones)
 elementsPositions = []
@@ -116,13 +116,13 @@ while play:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                velocidadMovXMoto += -3.7
+                velocidadMovXMoto += -(velocityGame + 1)
             if event.key == pygame.K_RIGHT:
-                velocidadMovXMoto += 3.7
+                velocidadMovXMoto += (velocityGame + 1)
             if event.key == pygame.K_UP:
-                velocidadMovYMoto = -3.7
+                velocidadMovYMoto = -(velocityGame + 1)
             if event.key == pygame.K_DOWN:
-                velocidadMovYMoto = 3.7
+                velocidadMovYMoto = (velocityGame + 1)
             if event.key == pygame.K_SPACE:
                 if not powerActive:
                     if len(powers) > 0:
