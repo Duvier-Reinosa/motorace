@@ -1,16 +1,16 @@
 import pygame
 import time
 import random
-from metodos import endGame
+from metodos import endGame, initGame
 
+
+# inicia el pygame para el juego
 pygame.init()
 sizeScreen = (470, 600)
 screen = pygame.display.set_mode(sizeScreen)
-pygame.display.set_caption("Moto Race")
-
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)  # Fuente para el texto
-font2 = pygame.font.Font(None, 16)  # Fuente para el texto
+font2 = pygame.font.Font(None, 16)  # Fuente para el sub texto
 
 
 # assets
@@ -54,8 +54,11 @@ powers = [pistonScaled]
 play = True
 # Lista de posiciones de los Elementos(carros, llantas y pistones)
 elementsPositions = []
-powerActive = False
-timePowerActive = 0
+powerActive = False #Para saber cuando el poder esta activo
+timePowerActive = 0 #para contabilizar el tiempo que el poder esta activo
+
+
+initGame(screen) # Primera pantalla para el juego
 
 # Función para agregar un nuevo elemento a la lista
 def addElements():
@@ -80,11 +83,15 @@ def updateElements():
         if y > 600:
             elementsPositions.pop(i)
 
+
+# este metodo controla el tiempo o velovdad del juego
 def addVelocityGame():
     global velocityGame
     if currentSeconds % 10 == 0 and currentSeconds != 0:
         velocityGame += 0.01
 
+
+# función para retornar un elemento según la posición
 def selectElements(position):
     if position == 0:
         return carBlue
@@ -100,8 +107,9 @@ def selectElements(position):
         return pistonScaled
     elif position == 6:
         return tyreScaled
-runSound.play(-1)
+
 # Bucle principal del juego
+runSound.play(-1)
 while play:
     addVelocityGame()
     # Calcular el tiempo transcurrido
@@ -113,7 +121,7 @@ while play:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             play = False
-
+        # captura el evento de clickar una tecla
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 velocidadMovXMoto += -(velocityGame + 1)
@@ -129,7 +137,7 @@ while play:
                         powers.pop(0)
                         timePowerActive = currentSeconds
                         powerActive = True
-
+        # captura el evento de soltar una tecla
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 velocidadMovXMoto = 0
@@ -155,17 +163,17 @@ while play:
 
     # Dibujar fondo
     screen.blit(background, (0, backgroundPosition))
-    screen.blit(background, (0, backgroundPosition - sizeScreen[1]))
+    screen.blit(background, (0, backgroundPosition - sizeScreen[1])) #este es para que se vea el fondo cuando se vaya acabando el primero
 
     # Dibujar elementos y controla colisiones
     for (x, y, element) in elementsPositions:
         elementDrawed = screen.blit(element, (x, y))
-        # verificar colisiones
+        # verificar colisiones con la moto, agrega sonidos y poderes
         if motoDrawed.colliderect(elementDrawed):
             if element == carBlue or element == carGreen or element == carRed or element == carRose or element == carYellow:
                 runSound.stop()
                 crashSound.play()
-                play = False
+                play = False #para finalizar el juego
             elif element == pistonScaled:
                 powers.append(element)
                 pistonSound.play()
@@ -175,7 +183,7 @@ while play:
                 breakSound.play()
                 elementsPositions.remove((x, y, element))
 
-    # Crear el texto
+    # Crea los textos para luego mostrarlos
     textTime = font.render("Time: " + str(currentSeconds) + " sec", True, (0, 0, 0))
     textTime2 = font.render("To subtract: " + str(secondsToSubtract) + " sec", True, (0, 0, 0))
     textTime3 = font.render("Power:" + str(len(powers)), True, (0, 0, 0))
@@ -190,13 +198,14 @@ while play:
     screen.blit(textTime5, (10, 120))
 
 
-    # mostrar moto
+    # muestra moto
     motoDrawed = screen.blit(motoScaled, (xMoto, yMoto))
 
+# control del poder activado, si se encuentra activo vaciamos la lista de elementos, reproducimos sonido y lo desactivamos
     if not powerActive:
         # Generar nuevos carros aleatoriamente
-        if random.random() < 0.01:  # Probabilidad de generar un nuevo carro en cada iteración
-            addElements()
+        if random.random() < 0.05:  # Probabilidad de generar un nuevo carro en cada iteración
+            addElements()   #agrega elementos al juego
 
         # Actualizar posición de los elementos
         updateElements()
@@ -204,12 +213,15 @@ while play:
         elementsPositions = []
         pistonMommentSound.play()
         if currentSeconds - timePowerActive >= 10:
-            powerActive = False
+            timePowerActive = 0 #reiniciamos el tiempo
+            powerActive = False #apagamos el poder
 
+    #reiniciamos posicion del fondo
     if backgroundPosition >= sizeScreen[1]:
         backgroundPosition = 0
 
     pygame.display.flip()
     clock.tick(fps)
 
+# metodo para finalizar el juego
 endGame(currentSeconds - secondsToSubtract)
